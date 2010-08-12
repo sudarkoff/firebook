@@ -16,4 +16,6 @@ twitter_limit:5
 plugins:flashbake.plugins.music:iTunes
 
 # hot files
+.*
 *.txt
+*/*.txt
