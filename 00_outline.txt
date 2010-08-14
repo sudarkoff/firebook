@@ -1,0 +1,43 @@
+Fire
+The theory and practice of starting a fire in a survival situation.
+
+    1. Theory of fire
+      - head
+      - oxidizer
+      - fuel
+    2. Preparation
+      - location, clean the debris, shield from elements (rain, wind), etc.
+      - collect tinder, kindling, fuel
+    3. Fuel
+      - Wood, dry grass, turf, etc.
+      - Petroleum-based products (gasoline, machine oil, etc.)
+      - Animal fat or it's byproducts
+      - Chemicals
+      - ...
+    4. Types of fire
+      - cooking, heating, signaling, etc.
+      - different configurations of fire (also talk about reflectors and such)
+    5. Starting a fire
+      a. Friction
+        - Fire bow or bow drill
+        - Whatever is Hawaiian method called (fire plow?)
+        - Indian method of spinning the drill with hands
+        - Fire Saw
+      b. Percussion
+      c. Solar (concentrated sun light)
+        - A lens.
+        - Water balloon (or a condom).
+        - Piece of ice.
+        - Polished piece of metal of parabolic shape (soda can)
+      d. Electricity
+        - battery (http://www.survivaltopics.com/survival/how-to-make-a-fire-with-batteries-and-steel-wool/)
+      e. Chemical reaction
+        - Ex.: Potassium permanganate + glycerin (part of antifreeze)
+          http://www.primitiveways.com/chemical_fire.html
+        - Sodium from the engine valve and water
+    6. Fire safety
+
+Ideas:
+ - YouTube and Flickr channels for pictures and videos of readers starting a fire with one of the methods.
+ - Ask people about their favorite methods of finding and prepare tinder.
+ - Insert real-life stories about fire here and there (ask for submissions).
