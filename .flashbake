@@ -1,20 +1,3 @@
-notice_to:george@sudarkoff.com
-
-plugins:flashbake.plugins.timezone:TimeZone
-plugins:flashbake.plugins.location:Location
-
-plugins:flashbake.plugins.weather:Weather
-weather_city:America/Los Angeles
-
-plugins:flashbake.plugins.feed:Feed
-feed_url:http://www.allaboutfire.com/feeds/posts/default?alt=rss
-
-plugins:flashbake.plugins.microblog:Twitter
-twitter_user:sudarkoff
-twitter_limit:5
-
-plugins:flashbake.plugins.music:iTunes
-
 # hot files
 .*
 *.txt
