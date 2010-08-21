@@ -2,7 +2,7 @@ Fire
 The theory and practice of starting a fire in a survival situation.
 
     1. Theory of fire
-      - head
+      - heat
       - oxidizer
       - fuel
     2. Preparation
@@ -36,6 +36,9 @@ The theory and practice of starting a fire in a survival situation.
           http://www.primitiveways.com/chemical_fire.html
         - Sodium from the engine valve and water
     6. Fire safety
+        - how to prevent wildfires
+        - how to prevent injuries
+        - how to treat burns
 
 Ideas:
  - YouTube and Flickr channels for pictures and videos of readers starting a fire with one of the methods.
