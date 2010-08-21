@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.sudarkoff.flashbake.allaboutfire</string>
+	<key>LowPriorityIO</key>
+	<true/>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/opt/local/bin/flashbake</string>
+		<string>/Users/george/Documents/AllAboutFire</string>
+		<string>5</string>
+	</array>
+	<key>StartInterval</key>
+	<integer>900</integer>
+</dict>
+</plist>
