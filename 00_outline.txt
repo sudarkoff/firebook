@@ -2,9 +2,6 @@ Fire
 The theory and practice of starting a fire in a survival situation.
 
     1. Theory of fire
-      - heat
-      - oxidizer
-      - fuel
     2. Preparation
       - location, clean the debris, shield from elements (rain, wind), etc.
       - collect tinder, kindling, fuel
