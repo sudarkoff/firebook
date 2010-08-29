@@ -126,7 +126,7 @@ def main(argv=None):
         # print "Words      : ", words
         # print "Pages      : ", pages
 
-        files = book.combine(argv[2])
+        files = book.combine(output)
         print "Files     : ", files
 
     except Usage, err:
