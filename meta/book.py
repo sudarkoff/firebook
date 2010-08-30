@@ -11,6 +11,7 @@ import os
 import sys
 import getopt
 import glob
+import inspect
 
 
 help_message = '''
@@ -22,16 +23,105 @@ class Usage(Exception):
     def __init__(self, msg):
         self.msg = msg
 
+class InvalidOperation(Exception): pass
+
+class RuntimeError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
 
 class Book(object):
     def __init__(self, path="."):
         self.path = path
 
-    def stats(self):
+
+# -----------------------------------------------------------------------------
+# Operations
+# -----------------------------------------------------------------------------
+
+class Operation(object):
+    """
+    Base class for operations.
+
+    To define new operations, subclass Operation and implement
+    an appropriate invoke() method.
+    """
+    options = ''
+    usage = ''
+    notes = ''
+
+    def __init__(self, opts):
+        self.name = self.__class__.name()
+        for option, value in opts:
+            if option == "-v":
+                self.verbose = True
+            if option in ("-o", "--output"):
+                self.output = value
+
+    @classmethod
+    def name(cls):
+        return cls.__name__.lower()
+
+    @classmethod
+    def args(operation):
+        allArgsStr = inspect.formatargspec(
+            *inspect.getargspec(operation.invoke))[1:-1]
+        allArgsList = allArgsStr.split(', ')
+
+        return ' '.join(['<%s>' % arg for arg in allArgsList
+            if arg not in ['self', 'host', 'vm']])
+
+def getOperationByName(opts, name):
+   ## `name` must be a string
+   if not hasattr(name, 'endswith'):
+       return None
+
+   opClass = opsDict.get(name, None)
+
+   if opClass:
+       return opClass(opts)
+   else:
+       return None
+
+def getOperationFromArgs(opts, args):
+  for arg in args:
+     operation = getOperationByName(opts, arg)
+     if operation: return operation
+
+def processArgs(opts, args):
+  return [arg for arg in args if not getOperationByName(opts, arg)]
+
+
+# -----------------------------------------------------------------------------
+# Concrete operations
+# -----------------------------------------------------------------------------
+class Help(Operation):
+    notes = 'Display help.'
+
+    def invoke(self):
+        lines = []
+
+        # TODO: print a nice header
+        # TODO: print help for available options
+        lines.append(help_message)
+
+        for key, opClass in opsDict.items():
+            args = opClass.args()
+            usageString = "%s %s %s %s" % (
+                sys.argv[0].split("/")[-1], opClass.options, opClass.name(), opClass.usage or args)
+            lines.append('    %-75s %s' % (usageString, opClass.notes))
+
+        print '\n'.join(lines)
+
+
+class Stats(Operation):
+    notes = 'Display various text stats.'
+
+    def invoke(self, book_path):
         # set all the counters to zero
         lines, blanklines, sentences, words = 0, 0, 0, 0
 
-        for infile in glob.glob(os.path.join(self.path, '*.txt')):
+        for infile in glob.glob(os.path.join(book_path, '*.txt')):
             try:
                 # use a text file you have, or google for this one ...
                 # TODO: loop through files in a directory
@@ -62,78 +152,89 @@ class Book(object):
             textf.close()
             pages = words / 300
 
-        return (lines, blanklines, sentences, words, pages)
+        print "Lines       :", lines
+        print "Blank lines :", blanklines
+        print "Sentences   :", sentences
+        print "Words       :", words
+        print "Pages       :", pages
 
-    def combine(self, output_file):
+
+class Compile(Operation):
+    options = '--output=<output file>'
+    usage = ''
+    notes = 'Assemble the book.'
+
+    def invoke(self, book_path):
         files, lines = 0, 0
         try:
-            self.output = open(output_file, 'w')
+            outfile = open(self.output, 'w')
         except IOError:
-            print 'Cannot open file %s for writing' % output_file
-            import sys
-            sys.exit(0)
+            raise RuntimeError('Cannot open file %s for writing' % self.output)
 
-        for infile in glob.glob(os.path.join(self.path, '*.txt')):
+        for infile in glob.glob(os.path.join(book_path, '*.txt')):
             try:
-                # use a text file you have, or google for this one ...
-                # TODO: loop through files in a directory
                 textf = open(infile, 'r')
                 files += 1
             except IOError:
-                print 'Cannot open file %s for reading' % filename
-                import sys
-                sys.exit(0)
+                raise RuntimeError('Cannot open file %s for reading' % infile)
 
             # copy text to the output file
             text = textf.read()
-            self.output.write("<!-- %s -->\n\n" % infile)
-            self.output.write(text)
-            self.output.write("\n\n\n")
+            outfile.write("[[%s]]\n" % infile)
+            outfile.write(text)
+            outfile.write("\n\n")
             textf.close()
 
-        self.output.close()
+        outfile.close()
 
-        return files
 
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+globalsDict = dict(globals())
+opsDict = dict(
+   [(key.lower(), val)
+    for key, val in globalsDict.items()
+    if hasattr(val, 'invoke')]
+   )
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "ho:v", [
-                "help",
+            opts, args = getopt.getopt(argv[1:], "o:v", [
                 "output=",
                 "verbose"
             ])
         except getopt.error, msg:
             raise Usage(msg)
 
-        # option processing
-        for option, value in opts:
-            if option == "-v":
-                verbose = True
-            if option in ("-h", "--help"):
-                raise Usage(help_message)
-            if option in ("-o", "--output"):
-                output = value
+        # Perform requested operation
+        result = None
+        operation = getOperationFromArgs(opts, args)
+        if not operation:
+            raise InvalidOperation()
 
-        book = Book(argv[1])
-        # (lines, blanklines, sentences, words, pages) = book.stats()
-        # print "Lines      : ", lines
-        # print "Blank lines: ", blanklines
-        # print "Sentences  : ", sentences
-        # print "Words      : ", words
-        # print "Pages      : ", pages
-
-        files = book.combine(output)
-        print "Files     : ", files
+        processedArgs = processArgs(opts, args)
+        result = operation.invoke(*processedArgs)
 
     except Usage, err:
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
-        print >> sys.stderr, "\t for help use --help"
+        help = Help(opts)
+        help.invoke()
         return 2
 
+    except RuntimeError, err:
+        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        return 3
+
+    except InvalidOperation:
+        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": Invalid operation"
+        help = Help(opts)
+        help.invoke()
+        return 4
 
 if __name__ == "__main__":
     sys.exit(main())
