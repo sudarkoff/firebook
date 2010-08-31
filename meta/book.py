@@ -9,14 +9,13 @@ Copyright (c) 2010 George Sudarkoff. All rights reserved.
 
 import os
 import sys
-import getopt
+import optparse
 import glob
 import inspect
 
-
-help_message = '''
-Book management script.
-'''
+parser = None
+description = 'Book management script.'
+epilog = 'Available commands:'
 
 
 class Usage(Exception):
@@ -28,11 +27,6 @@ class InvalidOperation(Exception): pass
 class RuntimeError(Exception):
     def __init__(self, msg):
         self.msg = msg
-
-
-class Book(object):
-    def __init__(self, path="."):
-        self.path = path
 
 
 # -----------------------------------------------------------------------------
@@ -52,11 +46,7 @@ class Operation(object):
 
     def __init__(self, opts):
         self.name = self.__class__.name()
-        for option, value in opts:
-            if option == "-v":
-                self.verbose = True
-            if option in ("-o", "--output"):
-                self.output = value
+        self.options = opts
 
     @classmethod
     def name(cls):
@@ -72,24 +62,71 @@ class Operation(object):
             if arg not in ['self', 'host', 'vm']])
 
 def getOperationByName(opts, name):
-   ## `name` must be a string
-   if not hasattr(name, 'endswith'):
-       return None
+    ## `name` must be a string
+    if not hasattr(name, 'endswith'):
+        return None
 
-   opClass = opsDict.get(name, None)
+    opClass = opsDict.get(name, None)
 
-   if opClass:
-       return opClass(opts)
-   else:
-       return None
+    if opClass:
+        return opClass(opts)
+    else:
+        return None
 
 def getOperationFromArgs(opts, args):
-  for arg in args:
-     operation = getOperationByName(opts, arg)
-     if operation: return operation
+    for arg in args:
+        operation = getOperationByName(opts, arg)
+        if operation: return operation
 
 def processArgs(opts, args):
-  return [arg for arg in args if not getOperationByName(opts, arg)]
+    return [arg for arg in args if not getOperationByName(opts, arg)]
+
+
+# -----------------------------------------------------------------------------
+# Book class incapsulates meta information about the book
+# -----------------------------------------------------------------------------
+class Book(object):
+    def __init__(self, path=".", file_extension=".txt"):
+        self.path = path
+        self.file_extension = file_extension
+
+    def stats(self):
+        # set all the counters to zero
+        self.lines = 0
+        self.blanklines = 0
+        self.sentences = 0
+        self.words = 0
+
+        for infile in glob.glob(os.path.join(self.path, '*' + self.file_extension)):
+            try:
+                textf = open(infile, 'r')
+            except IOError:
+                print 'Cannot open file %s for reading' % filename
+                import sys
+                sys.exit(0)
+
+            # reads one line at a time
+            for line in textf:
+                self.lines += 1
+
+                if line.startswith('\n'):
+                    self.blanklines += 1
+                else:
+                    # assume that each sentence ends with . or ! or ?
+                    # so simply count these characters
+                    self.sentences += line.count('.') + line.count('!') + line.count('?')
+
+                    # create a list of words
+                    # use None to split at any whitespace regardless of length
+                    # so for instance double space counts as one space
+                    tempwords = line.split(None)
+                    # word total count
+                    self.words += len(tempwords)
+
+            textf.close()
+            self.pages = self.words / 300
+
+        return (self.lines, self.blanklines, self.sentences, self.words, self.pages)
 
 
 # -----------------------------------------------------------------------------
@@ -100,16 +137,14 @@ class Help(Operation):
 
     def invoke(self):
         lines = []
+        lines.append("\n  Available Commands:")
 
-        # TODO: print a nice header
-        # TODO: print help for available options
-        lines.append(help_message)
+        parser.print_help()
 
         for key, opClass in opsDict.items():
             args = opClass.args()
-            usageString = "%s %s %s %s" % (
-                sys.argv[0].split("/")[-1], opClass.options, opClass.name(), opClass.usage or args)
-            lines.append('    %-75s %s' % (usageString, opClass.notes))
+            usageString = "%s %s" % (opClass.name(), opClass.usage or args)
+            lines.append('    %-19s %s' % (usageString, opClass.notes))
 
         print '\n'.join(lines)
 
@@ -118,39 +153,8 @@ class Stats(Operation):
     notes = 'Display various text stats.'
 
     def invoke(self, book_path):
-        # set all the counters to zero
-        lines, blanklines, sentences, words = 0, 0, 0, 0
-
-        for infile in glob.glob(os.path.join(book_path, '*.txt')):
-            try:
-                # use a text file you have, or google for this one ...
-                # TODO: loop through files in a directory
-                textf = open(infile, 'r')
-            except IOError:
-                print 'Cannot open file %s for reading' % filename
-                import sys
-                sys.exit(0)
-
-            # reads one line at a time
-            for line in textf:
-                lines += 1
-
-                if line.startswith('\n'):
-                    blanklines += 1
-                else:
-                    # assume that each sentence ends with . or ! or ?
-                    # so simply count these characters
-                    sentences += line.count('.') + line.count('!') + line.count('?')
-
-                    # create a list of words
-                    # use None to split at any whitespace regardless of length
-                    # so for instance double space counts as one space
-                    tempwords = line.split(None)
-                    # word total count
-                    words += len(tempwords)
-
-            textf.close()
-            pages = words / 300
+        book = Book(book_path)
+        lines, blanklines, sentences, words, pages = book.stats()
 
         print "Lines       :", lines
         print "Blank lines :", blanklines
@@ -166,8 +170,10 @@ class Compile(Operation):
 
     def invoke(self, book_path):
         files, lines = 0, 0
+        if self.options.output_file is None:
+            raise Usage("--output-file= not specified.")
         try:
-            outfile = open(self.output, 'w')
+            outfile = open(self.options.output_file, 'w')
         except IOError:
             raise RuntimeError('Cannot open file %s for writing' % self.output)
 
@@ -201,18 +207,31 @@ opsDict = dict(
 
 def main(argv=None):
     if argv is None:
-        argv = sys.argv
+        argv = sys.argv[1:]
     try:
-        try:
-            opts, args = getopt.getopt(argv[1:], "o:v", [
-                "output=",
-                "verbose"
-            ])
-        except getopt.error, msg:
-            raise Usage(msg)
+        global parser
+        parser = optparse.OptionParser("usage: %prog [options] command [arguments...]")
+        parser.allow_interspersed_args = False
+        parser.add_option("-v",
+            action="store_true", dest="verbose",
+            help="Verbose")
+
+        outputFormatOptGroup = optparse.OptionGroup(parser, 'Output Format Options')
+        outputFormatOptGroup.add_option(
+            "--output-file",
+            action="store", dest="output_file", metavar="OUTPUT",
+            help="Output file name")
+        outputFormatOptGroup.add_option(
+           "--format",
+           action="store", dest="format", metavar="FORMAT",
+           type="choice", choices=['txt', 'html', 'epub'],
+           default='txt',
+           help="Output format (txt, html, epub)")
+        parser.add_option_group(outputFormatOptGroup)
+
+        opts, args = parser.parse_args(argv)
 
         # Perform requested operation
-        result = None
         operation = getOperationFromArgs(opts, args)
         if not operation:
             raise InvalidOperation()
@@ -221,17 +240,17 @@ def main(argv=None):
         result = operation.invoke(*processedArgs)
 
     except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        sys.stderr.write("Usage error: %s\n\n" % str(err.msg))
         help = Help(opts)
         help.invoke()
         return 2
 
     except RuntimeError, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
+        sys.stderr.write("Runtime error: %s\n\n" % str(err.msg))
         return 3
 
     except InvalidOperation:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": Invalid operation"
+        sys.stderr.write("Invalid operation.\n")
         help = Help(opts)
         help.invoke()
         return 4
