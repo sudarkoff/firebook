@@ -1,5 +1,7 @@
 # FIRE
-*The theory and practice of starting a fire in a survival situation.*
+*The theory and practice of fire.*
+
+What's the scope of the book? Do I talk about outdoors only? How about fire safety in an urban situation?
 
   1. Theory and history of fire
   2. Preparation
