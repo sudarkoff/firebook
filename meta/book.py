@@ -17,6 +17,10 @@ parser = None
 description = 'Book management script.'
 epilog = 'Available commands:'
 
+# Averages for US Trade book size
+# See this for details: http://www.antipope.org/charlie/blog-static/2010/03/cmap-5-why-books-are-the-lengt.html
+WORDS_PER_BOOK = 100000
+WORDS_PER_PAGE = 300
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -82,6 +86,23 @@ def processArgs(opts, args):
     return [arg for arg in args if not getOperationByName(opts, arg)]
 
 
+class Help(Operation):
+    notes = 'Display help.'
+
+    def invoke(self):
+        lines = []
+        lines.append("\n  Available Commands:")
+
+        parser.print_help()
+
+        for key, opClass in opsDict.items():
+            args = opClass.args()
+            usageString = "%s %s" % (opClass.name(), opClass.usage or args)
+            lines.append('    %-19s %s' % (usageString, opClass.notes))
+
+        print '\n'.join(lines)
+
+
 # -----------------------------------------------------------------------------
 # Book class incapsulates meta information about the book
 # -----------------------------------------------------------------------------
@@ -124,43 +145,23 @@ class Book(object):
                     self.words += len(tempwords)
 
             textf.close()
-            self.pages = self.words / 300
 
-        return (self.lines, self.blanklines, self.sentences, self.words, self.pages)
+        return (self.lines, self.blanklines, self.sentences, self.words)
 
 
 # -----------------------------------------------------------------------------
 # Concrete operations
 # -----------------------------------------------------------------------------
-class Help(Operation):
-    notes = 'Display help.'
-
-    def invoke(self):
-        lines = []
-        lines.append("\n  Available Commands:")
-
-        parser.print_help()
-
-        for key, opClass in opsDict.items():
-            args = opClass.args()
-            usageString = "%s %s" % (opClass.name(), opClass.usage or args)
-            lines.append('    %-19s %s' % (usageString, opClass.notes))
-
-        print '\n'.join(lines)
-
-
 class Stats(Operation):
     notes = 'Display various text stats.'
 
     def invoke(self, book_path):
         book = Book(book_path)
-        lines, blanklines, sentences, words, pages = book.stats()
+        lines, blanklines, sentences, words = book.stats()
 
-        print "Lines       :", lines
-        print "Blank lines :", blanklines
-        print "Sentences   :", sentences
-        print "Words       :", words
-        print "Pages       :", pages
+        print "Words       : %s (%s%%)" % (words, (words / WORDS_PER_BOOK)*100)
+        print "Sentences   : %s" % sentences
+        print "Pages       : %s" % (words / WORDS_PER_PAGE)
 
 
 class Compile(Operation):
