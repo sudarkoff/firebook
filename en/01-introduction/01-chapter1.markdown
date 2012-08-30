@@ -1,8 +1,8 @@
 # Introduction
 
-Fire is the most fundamental energy "source". From bonfire, to burning coal to produce electricity and heat, to internal combustion engines, to space ship engines - everything involves fire.
+Fire is the most fundamental energy "source". From bonfire, to burning coal to producing electricity and heat, to internal combustion engines, to space ship engines - everything involves fire.
 
-Starting a fire is easy, right? Why write an entire book about it? Well, if you ever camped in a rainy and windy weather, you might know that a simple task of taking a match to a bundle of kindling does not suffice. The task borders on the impossible. And what if you don't have any matches or lighters on you? Knowing a couple of tricks could save your ass or turn a cold dark night in the woods into a memorable and fun adventure. Finally, fire is a fascinating thing in its own, I had fun learning about it while doing my research for this book and I hope you'll enjoy it too.
+Starting a fire is easy, right? Why write an entire book about it? Well, if you ever camped in a rainy and windy weather, you might know that a simple task of taking a match to a bundle of kindling does not suffice. The task borders on the impossible. And what if you don't have any matches or a lighter on you? Knowing a couple of tricks could save your ass or turn a cold dark night in the woods into a memorable and fun adventure. Finally, fire is a fascinating thing in its own, I had fun learning about it while doing my research for this book and I hope you'll enjoy it too.
 
 I had been pretty lucky to spend my childhood in a small town with lots of nature around me, so I had lots of practice. Including starting fires with some very untraditional methods - like breaking the engine's valve and spitting on sodium extracted from it. As kids, we weren't taking it too seriously, we were just having fun. And that, I think, was helping us to learn new and creative ways of starting a fire. Playing with fire (responsibly!) is the first reason I wanted to write this book.
 
