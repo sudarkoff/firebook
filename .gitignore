@@ -1,0 +1,15 @@
+fire.*.pdf
+fire.*.mobi
+fire.*.epub
+fire.*.html
+fire-*.epub
+*.swp
+latex/*
+!latex/makepdf
+!latex/README
+!latex/template.tex
+!latex/config.yml
+epub/temp
+*~
+.#*
+figures/*
