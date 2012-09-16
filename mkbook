@@ -6,6 +6,6 @@ CHAPTERS="\
    04-troubleshooting.markdown \
 "
 
-pandoc -S --epub-metadata=metadata.xml --epub-stylesheet=epub.css -o firebook.epub title.txt ${CHAPTERS}
+pandoc -S --epub-metadata=metadata.xml --epub-stylesheet=epub.css --epub-cover-image=cover.jpg -o firebook.epub title.txt ${CHAPTERS}
 pandoc -o firebook.pdf title.txt ${CHAPTERS}
 kindlegen -o firebook.mobi firebook.epub
