@@ -1,4 +1,4 @@
-# Introduction
+# Preface
 
 Fire is the most fundamental energy "source". From bonfire, to burning coal to producing electricity and heat, to internal combustion engines, to space ship engines - everything involves fire.
 
