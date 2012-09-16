@@ -7,4 +7,4 @@ CHAPTERS="\
 "
 
 pandoc -S --epub-metadata=metadata.xml --epub-stylesheet=epub.css -o firebook.epub title.txt ${CHAPTERS}
-
+pandoc -o firebook.pdf title.txt ${CHAPTERS}
