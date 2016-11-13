@@ -8,7 +8,7 @@ BUILD_DIR := book
 # pandoc is a handy tool for converting between numerous text formats:
 # http://johnmacfarlane.net/pandoc/installing.html
 # To install pdflatex required for rendering PDFs:
-# 
+# TODO: Where did I get that package from?!
 PANDOC := pandoc
 
 # pandoc options
@@ -22,7 +22,10 @@ KINDLEGEN_OPTS :=
 
 # Only .markdown files are considered full documents. Any supporting notes and memos that are not
 # to be converted should have a different extension (.md, .mdown, .txt and so on).
-MARKDOWN := $(wildcard *.markdown)
+MARKDOWN := \
+   01-preface.markdown \
+   02-theory_of_fire.markdown \
+   04-troubleshooting.markdown \
 
 BOOK_NAME := firebook
 PDF := $(BOOK_NAME).pdf
@@ -32,7 +35,7 @@ HTML := $(patsubst %.markdown,$(BUILD_DIR)/%.html,$(MARKDOWN))
 
 .PHONY: all pdf ebook html clean
 
-all: $(PDF) $(EBOOK)
+all: $(EBOOK)
 
 pdf: $(PDF)
 
@@ -49,6 +52,7 @@ $(PDF): $(MARKDOWN)
 $(EBOOK): $(MARKDOWN)
 	@echo " ** ebook   :" $@
 	${Q}$(PANDOC) $(PANDOC_EBOOK_OPTS) --self-contained -o $@ title.txt $<
+	@echo " ** ebook   :" $(patsubst %.epub,%.mobi,$@)
 	${Q}$(KINDLEGEN) $(KINDLEGEN_OPTS) $@ > /dev/null
 
 # generate HTML files
